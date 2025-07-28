@@ -38,17 +38,30 @@ async def approve(_, m: Message):
         await app.approve_chat_join_request(op.id, kk.id)
         img = random.choice(gif)
         # Generate chat invite link and bio
+        chat_link = None
         try:
-            chat_link = await app.export_chat_invite_link(op.id)
-            # Ensure chat_link starts with https://t.me/+
-            if not chat_link.startswith("https://t.me/+"):
-                chat_link = chat_link.replace("https://t.me/", "https://t.me/+")
+            invite_link = await app.export_chat_invite_link(op.id)
+            # Transform invite link to https://t.me/joinchat/<unique_code> for private chats
+            if invite_link.startswith("https://t.me/+"):
+                unique_code = invite_link[len("https://t.me/+"):]
+                chat_link = f"https://t.me/joinchat/{unique_code}"
+            else:
+                chat_link = invite_link
         except errors.ChatAdminRequired:
-            # Fallback to public username if available
-            chat_link = f"https://t.me/{op.username}" if op.username else "https://t.me/invite-link-not-available"
+            print(f"Bot lacks 'Invite Users' permission in chat {op.id}")
+        except errors.InviteHashExpired:
+            print(f"Existing invite link expired for chat {op.id}")
         except Exception as e:
-            print(f"Error generating invite link: {e}")
-            chat_link = f"https://t.me/{op.username}" if op.username else "https://t.me/invite-link-not-available"
+            print(f"Error generating invite link for chat {op.id}: {e}")
+        
+        # Set chat_link based on chat type
+        if chat_link is None:
+            if op.username:
+                chat_link = f"https://t.me/{op.username}"
+            else:
+                chat_link = "https://t.me/invite-link-not-available"
+                print(f"No invite link or username available for chat {op.id}")
+
         chat_bio = op.title or "Join our awesome community!"
         bot_username = cfg.BOT_NAME if hasattr(cfg, 'BOT_NAME') else "@SDAutoApproveBot"
         keyboard = InlineKeyboardMarkup(
@@ -57,6 +70,8 @@ async def approve(_, m: Message):
                     InlineKeyboardButton(
                         "𝐀ρρ𝗋ⱺ𝗏𝖾 𝐌𝖾",
                         url=f"https://telegram.me/share/url?url={chat_link}&text={chat_bio}"
+                        if chat_link != "https://t.me/invite-link-not-available"
+                        else "https://t.me/invite-link-not-available"
                     )
                 ],
                 [
