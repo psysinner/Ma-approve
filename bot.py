@@ -40,10 +40,17 @@ async def approve(_, m: Message):
         # Generate chat invite link and bio
         try:
             chat_link = await app.export_chat_invite_link(op.id)
-        except Exception:
+            # Ensure chat_link starts with https://t.me/+
+            if not chat_link.startswith("https://t.me/+"):
+                chat_link = chat_link.replace("https://t.me/", "https://t.me/+")
+        except errors.ChatAdminRequired:
+            # Fallback to public username if available
+            chat_link = f"https://t.me/{op.username}" if op.username else "https://t.me/invite-link-not-available"
+        except Exception as e:
+            print(f"Error generating invite link: {e}")
             chat_link = f"https://t.me/{op.username}" if op.username else "https://t.me/invite-link-not-available"
         chat_bio = op.title or "Join our awesome community!"
-        bot_username = cfg.BOT_NAME if hasattr(cfg, 'BOT_NAME') else "AutoApprovalV2Bot"
+        bot_username = cfg.BOT_NAME if hasattr(cfg, 'BOT_NAME') else "@SDAutoApproveBot"
         keyboard = InlineKeyboardMarkup(
             [
                 [
@@ -73,7 +80,7 @@ async def approve(_, m: Message):
         await app.send_video(
             kk.id,
             img,
-            caption="**Hello {}!\nWelcome To {}\n\n__Powerd By : @Mortal_Demon**".format(m.from_user.mention, m.chat.title),
+            caption="**Hello {}!\nWelcome To {}\n\n__Powerd By : @PLAYBOY_XD**".format(m.from_user.mention, m.chat.title),
             reply_markup=keyboard
         )
         add_user(kk.id)
@@ -92,8 +99,8 @@ async def op(_, m: Message):
             keyboard = InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("🗯 Channel", url="https://t.me/Mortal_Demon"),
-                        InlineKeyboardButton("𝐏α𝗋αᑯ𝗂𝗌𝖾 𝚰𝗌ᥣα𐓣ᑯ", url="http://t.me/+4cR56ah9h1g5NzA0")
+                        InlineKeyboardButton("🗯 Channel", url="https://t.me/PLAYBOY_XD"),
+                        InlineKeyboardButton("💬 Support", url="https://t.me/PLAYBOY_XD")
                     ],
                     [
                         InlineKeyboardButton("➕ Add me to your Chat ➕", url="https://t.me/DishaPatani_robot?startgroup")
@@ -101,12 +108,12 @@ async def op(_, m: Message):
                 ]
             )
             add_user(m.from_user.id)
-            await m.reply_photo("https://telegra.ph/file/a782e3bbbe40df8a4bb67.jpg", caption="**🦊 Hello {}!\nI'm an auto approve [Admin Join Requests]({}) Bot.\nI can approve users in Groups/Channels.Add me to your chat and promote me to admin with add members permission.\n\n__Powerd By : @Mortal_Demon__**".format(m.from_user.mention, "https://t.me/telegram/153"), reply_markup=keyboard)
+            await m.reply_photo("https://telegra.ph/file/a782e3bbbe40df8a4bb67.jpg", caption="**🦊 Hello {}!\nI'm an auto approve [Admin Join Requests]({}) Bot.\nI can approve users in Groups/Channels.Add me to your chat and promote me to admin with add members permission.\n\n__Powerd By : @PLAYBOY_XD__**".format(m.from_user.mention, "https://t.me/telegram/153"), reply_markup=keyboard)
         elif m.chat.type == enums.ChatType.GROUP or enums.ChatType.SUPERGROUP:
             keyboar = InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("💁‍♂️ Start me private 💁‍♂️", url="https://t.me/AutoApprovalV2Bot?start=start")
+                        InlineKeyboardButton("💁‍♂️ Start me private 💁‍♂️", url="https://t.me/SDAutoApproveBot?start=start")
                     ]
                 ]
             )
@@ -133,16 +140,16 @@ async def chk(_, cb: CallbackQuery):
             keyboard = InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("🗯 Channel", url="https://t.me/Mortal_Demon"),
-                        InlineKeyboardButton("📚 {Pα𝗋αᑯ𝗂𝗌𝖾 𝚰𝗌ᥣα𐓣ᑯ", url="http://t.me/+4cR56ah9h1g5NzA0")
+                        InlineKeyboardButton("🗯 Channel", url="https://t.me/PLAYBOY_XD"),
+                        InlineKeyboardButton("💬 Support", url="https://t.me/PLAYBOY_XD")
                     ],
                     [
-                        InlineKeyboardButton("➕ Add me to your Chat ➕", url="https://t.me/AutoApprovalV2Bot?startgroup")
+                        InlineKeyboardButton("➕ Add me to your Chat ➕", url="https://t.me/SDAutoApproveBot?startgroup")
                     ]
                 ]
             )
             add_user(cb.from_user.id)
-            await cb.message.edit("**🦊 Hello {}!\nI'm an auto approve [Admin Join Requests]({}) Bot.\nI can approve users in Groups/Channels.Add me to your chat and promote me to admin with add members permission.\n\n__Powerd By : @Mortal_Demon**".format(cb.from_user.mention, "https://t.me/telegram/153"), reply_markup=keyboard, disable_web_page_preview=True)
+            await cb.message.edit("**🦊 Hello {}!\nI'm an auto approve [Admin Join Requests]({}) Bot.\nI can approve users in Groups/Channels.Add me to your chat and promote me to admin with add members permission.\n\n__Powerd By : @PLAYBOY_XD**".format(cb.from_user.mention, "https://t.me/telegram/153"), reply_markup=keyboard, disable_web_page_preview=True)
         print(cb.from_user.first_name + " Is started Your Bot!")
     except UserNotParticipant:
         await cb.answer("🙅‍♂️ You are not joined to channel join and try again. 🙅‍♂️")
